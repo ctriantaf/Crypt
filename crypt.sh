@@ -24,7 +24,7 @@
 		
 		echo $name >> .crypt_list
 		
-		encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θα έχει ο φάκελος."' /home/$USER/.$name /home/$USER/$name 
+		encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name /home/$USER/$name 
 		
 		menu
 	}
@@ -54,14 +54,9 @@
 
 	close_folder() {
 		
-		printf "Οι φάκελοι που είναι ανοιχτοί είναι: "
+		printf "Οι φάκελοι που είναι ανοιχτοί είναι (αν δεν δείχνει \n τίποτα σημαίνει ότι δεν υπάρχουν ανοιχτοί φάκελοι) : "
 		
-		if [ -s .crypt_list_open ] 
-			then cat .crypt_list_open
-			
-		elif [ -s != .crypt_list_open]
-			then printf "Κανένας φάκελος δεν είναι ανοιχτός"
-		fi 
+		cat .crypt_list_open
 		
 		
 		printf "Δώστε το όνομα του φακέλου που θέλετε να κλείσετε \n "
@@ -169,7 +164,7 @@
 					read name2
 					
 				echo $name2 >> .crypt_list	
-				encfs /home/$USER/.$name1 /home/$USER/$name2;
+				encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name1 /home/$USER/$name2;
 		
 		else menu
 		fi
