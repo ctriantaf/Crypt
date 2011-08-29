@@ -107,25 +107,76 @@
 		printf "Θέλετε να διαγράψετε και τον κρυφό φάκελο με το στοιχεία; (ν/ο) \n"
 		read answer
 		
-		if [ "$answer" == "y" ]
+		if [ "$answer" == "ν" ]
          then sudo rm -rf $folder .$folder
          
          
-			elif [ "$answer" == "n" ]
+			elif [ "$answer" == "ο" ]
 				then sudo rm -rf $folder
          
-			elif [ "$answer" != "y" ] || [ "$answer" != "y" ]
+			elif [ "$answer" != "ν" ] || [ "$answer" != "ο" ]
 				then
-					while [ "$answer" != "y" ] || [ "$answer" != "n" ]; do
+					while [ "$answer" != "ν" ] && [ "$answer" != "ο" ]; do
 					printf "Θέλετε να διαγράψετε και τον κρυφό φάκελο με το στοιχεία; (ν/ο) \n"
 					read answer;		
 					done
 		fi
 		
 		sed -i "/$folder/d" .crypt_list
+		
+		menu
 	}
 		
+#
+# Backup
+#
+
+	backup() {
 		
+		printf "Δώσε το όνομα του φακέλου που θέλετε να κάνετε backup"
+		read folder
+		
+		tar -cf $folder-backup.tar.gz $folder
+		
+		if [ $? != 0 ];
+			then zenity --error --title="Αποτυχία" --text="Το backup απέτυχε."
+		elif [ $? == 0 ];
+			then zenity --info --title="Ολοκληρώθηκε" --text="Το backup ολοκληρώθηκε."
+		fi
+		
+		menu
+	}
+	
+#
+# Restore
+#
+	
+	restore() {
+		
+		zenity --file-selection
+		read archive
+		
+		tar -xf $archive
+		
+		printf "Θέλετε να προσθέσετε τον φάκελο; (ν/ο) "
+		read answer
+		
+		if [ $answer == ν ];
+			then printf "Τι όνομα να έχει το ο κρυφός φάκελος;"
+					read name1
+					
+				 printf "Τι όνομα να έχει το ο ορατός φάκελος;"
+					read name2
+					
+				echo $name2 >> .crypt_list	
+				encfs /home/$USER/.$name1 /home/$USER/$name2;
+		
+		else menu
+		fi
+		
+		menu
+	}
+			
 # 
 # Μενού
 #
