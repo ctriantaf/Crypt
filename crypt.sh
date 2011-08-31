@@ -193,9 +193,9 @@ _width=500
 
 	backup() {
 		
-		folder=`zenity --entry --title="Backup"--text="Δώσε το όνομα του φακέλου που θέλετε να κάνετε backup."`
+		folder=`zenity --file-selection`
 		
-		tar -cf /home/$USER/$folder-backup.tar.gz $folder
+		tar -cf /home/$USER/$folder-backup.tar $folder
 		
 		if [ $? != 0 ];
 			then zenity --error --title="Αποτυχία" --text="Το backup απέτυχε."
@@ -263,6 +263,8 @@ input=$(zenity --height=450 --width=650 \
 		"false" "3" "Να κλείσετε κάποιον φάκελο." \
 		"false" "4" "Προσθέστε κάποιον ήδη υπάρχων φάκελο." \
 		"false" "5" "Διαγράψτε κάποιον φάκελο." \
+		"false" "6" "Backup." \
+		"false" "7" "Επαναφορά backup." \
 		"true" "*" "Έξοδος." \
 		--separator=";")
 		
@@ -280,6 +282,8 @@ input=$(zenity --height=450 --width=650 \
   3) close_folder;;
   4) import_folder;;
   5) delete_folder;;
+  6) backup;;
+  7) restore;;
   *) exit 0;;
   esac
 			done
