@@ -20,16 +20,35 @@
 #		Fifth Floor, Boston, MA 02110-1301, USA.
 #       
 # 
-	if [ -e != .crypt_list ]
-		then  touch .crypt_list
+
+
+VERSION=2.0
+_height=300
+_width=500
+
+
+
+	if [ -e != /home/$USER/.crypt_list ]
+		then  touch /home/$USER/.crypt_list
 	
 	fi
 	
 	
-	if [ -e != .crypt_list_open ]
-		then  touch .crypt_list_open
+	if [ -e != /home/$USER/.crypt_list_open ]
+		then  touch /home/$USER/.crypt_list_open
 	
 	fi
+	
+#
+# Έλεγχος για κλείσιμο zenity
+#
+	
+	zenity_fail() {
+		if [ $? != 0 ]; then
+			menu
+		fi
+		
+	}
 
 #
 #Δημιουργία φακέλου
@@ -37,16 +56,18 @@
 	
 	create_folder() {
 		
-		printf "Ονομασία φακέλου: \n"
-			read name
-	 
-		mkdir $name && mkdir .$name  
+		name=`zenity --entry --title="Ονομασία φακέλου:" --text="Όνομα φακέλου;"`
 		
-		echo $name >> .crypt_list
+		zenity_fail
+		
+		mkdir /home/$USER/$name && mkdir /home/$USER/.$name  
 		
 		encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name /home/$USER/$name 
 		
 		menu
+		
+		echo $name >> /home/$USER/.crypt_list
+		
 	}
 	
 #
@@ -55,15 +76,18 @@
 	
 	open_folder() {
 		
-		printf "Λίστα με τους φακέλους \n "
-		cat .crypt_list
-		printf "Δώστε το όνομα του φακέλου που θέλετε να ανοίξετε \n "
+		zenity --height=$_height --width=$_width \
+		--text-info --title="Φάκελοι που υπάρχουν" --filename=/home/$USER/.crypt_list
 		
-		read name
+		zenity_fail
+		
+		name=`zenity --entry --title="Άνοιγμα φακέλου" --text="Δώστε το όνομα του φακέλου που θέλετε να ανοίξετε."`
+		
+		zenity_fail
 		
 		encfs --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό."' /home/$USER/.$name /home/$USER/$name
 		
-		echo $name >> .crypt_list_open
+		echo $name >> /home/$USER/.crypt_list_open
 		
 		menu
 	}
@@ -74,15 +98,27 @@
 
 	close_folder() {
 		
-		printf "Οι φάκελοι που είναι ανοιχτοί είναι (αν δεν δείχνει \n τίποτα σημαίνει ότι δεν υπάρχουν ανοιχτοί φάκελοι) : "
 		
-		cat .crypt_list_open
+		if [ -s /home/$USER/.crypt_list_open ]; then
+			zenity --height=$_height --width=$_width \
+			--text-info --title="Φάκελοι που είναι ανοιχτοί." --filename=/home/$USER/.crypt_list_open
+		
+		zenity_fail
+			
+		elif [ ! -s /home/$USER/.crypt_list_open ]; then
+			zenity --info --text="Δεν υπάρχουν ανοιχτοί φάκελοι."
+		
+		zenity_fail
+		
+			menu
+		fi
 		
 		
-		printf "Δώστε το όνομα του φακέλου που θέλετε να κλείσετε \n "
-			read close_name 
+		close_name=`zenity --entry --title="Κλείσιμο φακέλου" --text="Δώστε το όνομα του φακέλου που θέλετε να κλείσετε."`
 	 
-		fusermount -u /home/$USER/$close_name && rmdir $close_name
+		zenity_fail
+		
+		fusermount -u /home/$USER/$close_name && rmdir /home/$USER/$close_name
 		
 		menu
 	}
@@ -93,14 +129,16 @@
 
 	import_folder() {
 		
-		printf "Ο φάκελος πρέπει να είναι στο /Home \n "
-		zenity --file-selection --directory --title="Επιλέξτε τον φάκελο \n "
-		read folder
+		zenity --warning --title="Προσοχή" --text="Ο φάκελος πρέπει να είναι στο /Home."
+		folder=`zenity --file-selection --directory --title="Επιλέξτε τον φάκελο."`
 		
-		printf "Δώστε το όνομα που θέλετε να έχει ο φάκελος (καλύτερα το ίδιο με το κρυφό φάκελο) \n "
-		read name
-	 
-		echo $name >> .crypt_list		
+		zenity_fail
+		
+		name=`zenity --entry --title="Προσθήκη φακέλου" --text="Δώστε το όνομα που θέλετε να έχει ο φάκελος (καλύτερα το ίδιο με το κρυφό φάκελο)."`
+		
+		zenity_fail
+		
+		echo $name >> /home/$USER/.crypt_list		
 		
 		encfs /home/$USER/.$folder /home/$USER/$name
 		
@@ -113,31 +151,38 @@
 	
 	delete_folder() {
 		
-		printf "Οι φάκελοι που υπάρχουν είναι: \n "
-		cat .crypt_list
 		
-		printf "Διαλέξτε ποιον θέλετε να διαγράψετε \n"
-		read folder
+		if [ -s /home/$USER/.crypt_list ]; then
+			zenity --height=$_height --width=$_width \
+			--text-info --title="Φάκελοι που υπάρχουν." --filename=/home/$USER/.crypt_list
 		
-		printf "Θέλετε να διαγράψετε και τον κρυφό φάκελο με το στοιχεία; (ν/ο) \n"
-		read answer
+		zenity_fail
+			
+		elif [ ! -s /home/$USER/.crypt_list ]; then
+			zenity --info --text="Δεν υπάρχουν φάκελοι."
 		
-		if [ "$answer" == "ν" ]
-         then sudo rm -rf $folder .$folder
-         
-         
-			elif [ "$answer" == "ο" ]
-				then sudo rm -rf $folder
-         
-			elif [ "$answer" != "ν" ] || [ "$answer" != "ο" ]
-				then
-					while [ "$answer" != "ν" ] && [ "$answer" != "ο" ]; do
-					printf "Θέλετε να διαγράψετε και τον κρυφό φάκελο με το στοιχεία; (ν/ο) \n"
-					read answer;		
-					done
+		zenity_fail
+		
+			menu
 		fi
 		
-		sed -i "/$folder/d" .crypt_list
+		
+		folder=`zenity --entry --title="Διαγραφή φακέλου" --text="Διαλέξτε ποιον θέλετε να διαγράψετε."`
+		
+		zenity_fail
+		
+		zenity --question --title="Διαγραφή φακέλου" --text="Θέλετε να διαγράψετε και τον κρυφό φάκελο με το στοιχεία;"
+		
+		zenity_fail
+		
+		if [ $? == 0 ];
+				then rm -rf /home/$USER/$folder && sudo rm -rf /home/$USER/.$folder
+         
+        elif [ $? != 0 ]
+				then rm -rf /home/$USER/$folder
+        fi
+		
+		sed -i "/$folder/d" /home/$USER/.crypt_list
 		
 		menu
 	}
@@ -148,15 +193,20 @@
 
 	backup() {
 		
-		printf "Δώσε το όνομα του φακέλου που θέλετε να κάνετε backup"
-		read folder
+		folder=`zenity --entry --title="Backup"--text="Δώσε το όνομα του φακέλου που θέλετε να κάνετε backup."`
 		
-		tar -cf $folder-backup.tar.gz $folder
+		tar -cf /home/$USER/$folder-backup.tar.gz $folder
 		
 		if [ $? != 0 ];
 			then zenity --error --title="Αποτυχία" --text="Το backup απέτυχε."
+		
+		zenity_fail
+		
 		elif [ $? == 0 ];
 			then zenity --info --title="Ολοκληρώθηκε" --text="Το backup ολοκληρώθηκε."
+		
+		zenity_fail
+		
 		fi
 		
 		menu
@@ -168,22 +218,24 @@
 	
 	restore() {
 		
-		zenity --file-selection
-		read archive
+		archive=`zenity --file-selection`
 		
 		tar -xf $archive
 		
-		printf "Θέλετε να προσθέσετε τον φάκελο; (ν/ο) "
-		read answer
+		zenity --question --title="Προσθήκη φακέλου" --text="Θέλετε να προσθέσετε τον φάκελο;"
 		
-		if [ $answer == ν ];
-			then printf "Τι όνομα να έχει το ο κρυφός φάκελος;"
-					read name1
+		zenity_fail
+		
+		if [ $? == 0 ];
+			then name1=`zenity --entry --title="Ονομασία" --text="Τι όνομα να έχει ο κρυφός φάκελος;"`
+		
+		zenity_fail
 					
-				 printf "Τι όνομα να έχει το ο ορατός φάκελος;"
-					read name2
+				 name2=`zenity --entry --title="Ονομασία" --text="Τι όνομα να έχει ο ορατός φάκελος;"`
+	
+	zenity_fail
 					
-				echo $name2 >> .crypt_list	
+				echo $name2 >> /home/$USER/.crypt_list	
 				encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name1 /home/$USER/$name2;
 		
 		else menu
@@ -197,14 +249,30 @@
 #
 
 	menu() {
-	
-printf "Διαλέξτε τι θέλετε να κάνετε: \n "
-printf "1) Δημιουργήστε ένα κρυπτογραφημένο φάκελο. \n 2) Να ανοίξετε κάποιον φάκελο. \n "
-printf "3) Να κλείσετε κάποιον φάκελο. \n 4) Προσθέστε κάποιον ήδη υπάρχων φάκελο. \n "
-printf "5) Διαγράψτε κάποιον φάκελο \n *) Έξοδος. \n "
 
-read i
 
+input=$(zenity --height=450 --width=650 \
+		--title="Διαλέξτε τι θέλετε να κάνετε:" \
+		--list \
+		--radiolist \
+		--column="" \
+		--column="#" \
+		--column="Επιλογή" \
+		"false" "1" "Δημιουργήστε ένα κρυπτογραφημένο φάκελο." \
+		"false" "2" "Να ανοίξετε κάποιον φάκελο." \
+		"false" "3" "Να κλείσετε κάποιον φάκελο." \
+		"false" "4" "Προσθέστε κάποιον ήδη υπάρχων φάκελο." \
+		"false" "5" "Διαγράψτε κάποιον φάκελο." \
+		"true" "*" "Έξοδος." \
+		--separator=";")
+		
+		if [ $? != 0 ]; then
+			mainmenu
+		else
+
+		for i in $(echo $input | tr ";" "\n")
+			do
+		
   case $i in
   
   1) create_folder;; 
@@ -214,6 +282,8 @@ read i
   5) delete_folder;;
   *) exit 0;;
   esac
+			done
+		fi
 
 	}
 	
