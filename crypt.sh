@@ -271,6 +271,8 @@ _width=500
 	
 			fi
 			
+		}
+			
 # 
 # Μενού
 #
@@ -318,4 +320,4 @@ input=$(zenity --height=450 --width=650 \
 
 	}
 	
-	update
+	menu
