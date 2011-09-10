@@ -27,15 +27,24 @@ _height=300
 _width=500
 
 
+#
+# Έλεγχοι για αρχεία
+#
 
-	if [ -e != /home/$USER/.crypt_list ]
+	if [ ! -e /home/$USER/.crypt_list ]
 		then  touch /home/$USER/.crypt_list
 	
 	fi
 	
 	
-	if [ -e != /home/$USER/.crypt_list_open ]
+	if [ ! -e /home/$USER/.crypt_list_open ]
 		then  touch /home/$USER/.crypt_list_open
+	
+	fi
+	
+	
+	if [ ! -e /usr/bin/encfs ]
+		then zenity --warning --title="Encfs" --text="Παρακαλώ εγκαταστήστε το encfs! sudo apt-get install encfs "
 	
 	fi
 	
@@ -120,6 +129,9 @@ _width=500
 		
 		fusermount -u /home/$USER/$close_name && rmdir /home/$USER/$close_name
 		
+		sed -i "/$close_name/d" /home/$USER/.crypt_list_open
+		
+		
 		menu
 	}
 
@@ -137,11 +149,12 @@ _width=500
 		name=`zenity --entry --title="Προσθήκη φακέλου" --text="Δώστε το όνομα που θέλετε να έχει ο φάκελος (καλύτερα το ίδιο με το κρυφό φάκελο)."`
 		
 		zenity_fail
-		
-		echo $name >> /home/$USER/.crypt_list		
+			
 		
 		encfs /home/$USER/.$folder /home/$USER/$name
 		
+		echo $name >> /home/$USER/.crypt_list		
+
 		menu
 	 }
 
@@ -161,8 +174,13 @@ _width=500
 		elif [ ! -s /home/$USER/.crypt_list ]; then
 			zenity --info --text="Δεν υπάρχουν φάκελοι."
 		
-		zenity_fail
 		
+				if [ $? != 0 ]; then
+					menu
+				else menu
+		
+				fi
+
 			menu
 		fi
 		
@@ -238,6 +256,8 @@ _width=500
 				echo $name2 >> /home/$USER/.crypt_list	
 				encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name1 /home/$USER/$name2;
 		
+		echo $name >> /home/$USER/.crypt_list
+		
 		else menu
 		fi
 		
@@ -252,8 +272,8 @@ _width=500
 	update() {
 		
 		new_version=`wget --no-check-certificate https://raw.github.com/Clepto/Crypt/master/crypt.sh -O - | grep "VERSION=" | cut -d "=" -f 2`
-			if [ $version != $new_version ];
-				then zenity --question --title="Αναβάθμιση" --text="Υπάρχει κανούργια έκδοση, θέλετε να κάνετε αναβάθμιση;"
+			if [ "$version" != "$new_version" ];
+				then zenity --question --title="Αναβάθμιση" --text="Υπάρχει κανούργια έκδοση, θέλετε να κάνετε αναβάθμιση; "
 						
 						if [ $? == 0 ];
 							then wget --no-check-certificate https://github.com/Clepto/Crypt/tarball/master -O Crypt.tar.gz;
@@ -266,7 +286,7 @@ _width=500
 						fi
 
 	
-			elif [ $version == $new_version ];
+			elif [ "$version" == "$new_version" ];
 				then menu
 	
 			fi
@@ -298,7 +318,7 @@ input=$(zenity --height=450 --width=650 \
 		--separator=";")
 		
 		if [ $? != 0 ]; then
-			mainmenu
+			menu
 		else
 
 		for i in $(echo $input | tr ";" "\n")
