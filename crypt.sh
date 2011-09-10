@@ -22,7 +22,7 @@
 # 
 
 
-VERSION=2.0
+VERSION=2
 _height=300
 _width=500
 
