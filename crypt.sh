@@ -22,7 +22,7 @@
 # 
 
 
-scriptversion=2
+scriptversion=2.5
 _height=300
 _width=500
 
