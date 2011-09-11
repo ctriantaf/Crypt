@@ -22,6 +22,10 @@
 # 
 
 
+<<<<<<< HEAD
+=======
+scriptversion=2.5
+>>>>>>> 56b17321b13d235571cb2ca451b9affad3d1c446
 _height=300
 _width=500
 
@@ -264,7 +268,39 @@ _width=500
 		menu
 	}
 	
+<<<<<<< HEAD
 		
+=======
+	
+#
+# Έλεγχος για αναβάθμιση
+#
+
+	update() {
+		
+		new_version=`wget --no-check-certificate https://raw.github.com/Clepto/Crypt/master/crypt.sh -O - | grep "scriptversion=" | cut -d "=" -f 2`
+			if [ "$scriptversion" != "$new_version" ];
+				then zenity --question --title="Αναβάθμιση" --text="Υπάρχει κανούργια έκδοση, θέλετε να κάνετε αναβάθμιση; "
+						
+						if [ $? == 0 ];
+							then wget --no-check-certificate https://github.com/Clepto/Crypt/tarball/master -O Crypt.tar.gz;
+								 rm -rf Crypt && tar xzf Crypt.tar.gz; 
+								 cd Crypt && ./crypt.sh
+						
+						elif [ $? != 0 ];
+							then menu
+						
+						fi
+
+	
+			elif [ "$version" == "$new_version" ];
+				then menu
+	
+			fi
+			
+		}
+			
+>>>>>>> 56b17321b13d235571cb2ca451b9affad3d1c446
 # 
 # Μενού
 #
