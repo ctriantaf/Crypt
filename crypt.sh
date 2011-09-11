@@ -22,7 +22,7 @@
 # 
 
 
-VERSION=2
+scriptversion=2
 _height=300
 _width=500
 
@@ -271,8 +271,8 @@ _width=500
 
 	update() {
 		
-		new_version=`wget --no-check-certificate https://raw.github.com/Clepto/Crypt/master/crypt.sh -O - | grep "VERSION=" | cut -d "=" -f 2`
-			if [ "$version" != "$new_version" ];
+		new_version=`wget --no-check-certificate https://raw.github.com/Clepto/Crypt/master/crypt.sh -O - | grep "scriptversion=" | cut -d "=" -f 2`
+			if [ "$scriptversion" != "$new_version" ];
 				then zenity --question --title="Αναβάθμιση" --text="Υπάρχει κανούργια έκδοση, θέλετε να κάνετε αναβάθμιση; "
 						
 						if [ $? == 0 ];
