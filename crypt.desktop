@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Encoding=UTF-8
+Value=1.0
+Name=Crypt
+Comment=
+Exec=/usr/bin/crypt
+Icon=/usr/share/icons/crypt.png
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Utility;
