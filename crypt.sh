@@ -22,7 +22,6 @@
 # 
 
 
-VERSION=2
 _height=300
 _width=500
 
@@ -58,6 +57,7 @@ _width=500
 		fi
 		
 	}
+
 
 #
 #Δημιουργία φακέλου
@@ -264,35 +264,7 @@ _width=500
 		menu
 	}
 	
-	
-#
-# Έλεγχος για αναβάθμιση
-#
-
-	update() {
 		
-		new_version=`wget --no-check-certificate https://raw.github.com/Clepto/Crypt/master/crypt.sh -O - | grep "VERSION=" | cut -d "=" -f 2`
-			if [ "$version" != "$new_version" ];
-				then zenity --question --title="Αναβάθμιση" --text="Υπάρχει κανούργια έκδοση, θέλετε να κάνετε αναβάθμιση; "
-						
-						if [ $? == 0 ];
-							then wget --no-check-certificate https://github.com/Clepto/Crypt/tarball/master -O Crypt.tar.gz;
-								 rm -rf Crypt && tar xzf Crypt.tar.gz; 
-								 cd Crypt && ./crypt.sh
-						
-						elif [ $? != 0 ];
-							then menu
-						
-						fi
-
-	
-			elif [ "$version" == "$new_version" ];
-				then menu
-	
-			fi
-			
-		}
-			
 # 
 # Μενού
 #
@@ -340,4 +312,4 @@ input=$(zenity --height=450 --width=650 \
 
 	}
 	
-	menu
+	update
