@@ -312,4 +312,4 @@ input=$(zenity --height=450 --width=650 \
 
 	}
 	
-	update
+	menu
