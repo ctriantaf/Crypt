@@ -73,9 +73,10 @@ _width=500
 		
 		encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name /home/$USER/$name 
 		
+		echo "$name" | tee -a /home/$USER/.crypt_list
+		
 		menu
 		
-		echo $name >> /home/$USER/.crypt_list
 		
 	}
 	
@@ -85,18 +86,39 @@ _width=500
 	
 	open_folder() {
 		
-		zenity --height=$_height --width=$_width \
-		--text-info --title="Φάκελοι που υπάρχουν" --filename=/home/$USER/.crypt_list
+		if [ -s /home/$USER/.crypt_list ]; then
+			zenity --height=$_height --width=$_width \
+			--text-info --title="Φάκελοι που υπάρχουν." --filename=/home/$USER/.crypt_list
 		
 		zenity_fail
+			
+		elif [ ! -s /home/$USER/.crypt_list ]; then
+			zenity --info --text="Δεν υπάρχουν φάκελοι."
+		
+		
+				if [ $? != 0 ]; then
+					menu
+				else menu
+		
+				fi
+
+			menu
+		fi
+
 		
 		name=`zenity --entry --title="Άνοιγμα φακέλου" --text="Δώστε το όνομα του φακέλου που θέλετε να ανοίξετε."`
 		
 		zenity_fail
 		
+		mkdir $name
+		
 		encfs --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό."' /home/$USER/.$name /home/$USER/$name
 		
-		echo $name >> /home/$USER/.crypt_list_open
+		echo "$name" | tee -a /home/$USER/.crypt_list_open
+		
+		sleep 1
+		
+		nautilus $name
 		
 		menu
 	}
@@ -153,7 +175,7 @@ _width=500
 		
 		encfs /home/$USER/.$folder /home/$USER/$name
 		
-		echo $name >> /home/$USER/.crypt_list		
+		echo "$name" | tee -a /home/$USER/.crypt_list		
 
 		menu
 	 }
@@ -253,10 +275,10 @@ _width=500
 	
 	zenity_fail
 					
-				echo $name2 >> /home/$USER/.crypt_list	
+				echo "$name2" | tee -a /home/$USER/.crypt_list	
 				encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name1 /home/$USER/$name2;
 		
-		echo $name >> /home/$USER/.crypt_list
+		echo "$name" | tee -a /home/$USER/.crypt_list
 		
 		else menu
 		fi
@@ -312,4 +334,4 @@ input=$(zenity --height=450 --width=650 \
 
 	}
 	
-	update
+	menu
