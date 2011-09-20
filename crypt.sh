@@ -26,6 +26,9 @@ _height=300
 _width=500
 
 
+
+rmd=`rmdir -rf /home/$USER/$close_name`
+
 #
 # Έλεγχοι για αρχεία
 #
@@ -69,11 +72,16 @@ _width=500
 		
 		zenity_fail
 		
-		mkdir /home/$USER/$name && mkdir /home/$USER/.$name  
+		mkdir $name .$name  
 		
 		encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name /home/$USER/$name 
 		
+		sleep 1
+		
 		echo "$name" | tee -a /home/$USER/.crypt_list
+		echo "$name" | tee -a /home/$USER/.crypt_list_open
+		
+		nautilus $name
 		
 		menu
 		
@@ -149,7 +157,7 @@ _width=500
 	 
 		zenity_fail
 		
-		fusermount -u /home/$USER/$close_name && rmdir /home/$USER/$close_name
+		fusermount -u /home/$USER/$close_name && gksu rmd
 		
 		sed -i "/$close_name/d" /home/$USER/.crypt_list_open
 		
@@ -175,7 +183,10 @@ _width=500
 		
 		encfs /home/$USER/.$folder /home/$USER/$name
 		
-		echo "$name" | tee -a /home/$USER/.crypt_list		
+		echo "$name" | tee -a /home/$USER/.crypt_list
+		echo "$name" | tee -a /home/$USER/.crypt_list_open
+		
+		nautilus $name
 
 		menu
 	 }
@@ -278,7 +289,10 @@ _width=500
 				echo "$name2" | tee -a /home/$USER/.crypt_list	
 				encfs --standard --extpass='zenity --entry --hide-text --title="Κωδικός" --text="Παρακαλώ πληκτρολογίστε τον κωδικό που θέλετε."' /home/$USER/.$name1 /home/$USER/$name2;
 		
-		echo "$name" | tee -a /home/$USER/.crypt_list
+		echo "$name2" | tee -a /home/$USER/.crypt_list
+		echo "$name2" | tee -a /home/$USER/.crypt_list_open
+		
+		nautilus $name2
 		
 		else menu
 		fi
